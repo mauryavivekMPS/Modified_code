@@ -34,7 +34,7 @@ class InsertIntoCassandraDBTask(Task):
                 data = json.loads(line[2])
 
                 tlogger.info("\n" + str(count-1) + " of " + str(total_count) + ". Processing record: " + publisher_id + " / " + manuscript_id)
-                Skipped_record_file_name = work_folder + "/" + publisher_id + "_" + "Error_file" + "skipped_file.txt"
+                Skipped_record_file_name = work_folder.rsplit('/',1)[0] +"/" + publisher_id +"_"+"Skipped_Rows_File.txt"
                 # special case skip
                 if publisher_id == 'aaas' and (data['submitted_journal'] == 'Signaling' or data['submitted_journal'] == 'Translational Medicine'):
                     def test_file_of_thread(text,data=None,Skipped_record_file_name=None):

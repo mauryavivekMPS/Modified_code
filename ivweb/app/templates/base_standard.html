@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load filters %}
+
+{% block body %}
+    {% block navbar %}
+        <div class="navbar-container">
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <img class="brand-logo" src="/static/dist/highwire-circle-white.png">
+                    <a class="navbar-brand" href="/">
+                        Vizor Manager
+                    </a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <p id="loading" class="navbar-text" style="display:none"><i class="fa fa-spinner fa-pulse"></i></p>
+                    <p id="loading-message" class="navbar-text" style="display:none"></p>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if request.account and not request.account.is_system_account %}
+                            {% if request.account.properties.logo_url %}
+                                <li class="navbar-text navbar-account-logo">
+                                    <img style="{{ request.account.properties.logo_navbar_styles }}" src="{{ request.account.properties.logo_url }}" />
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        <li class="dropdown user-dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {% if not request.user %}
+                                    Anonymous
+                                {% else %}
+                                    {{ request.user.email }}
+                                {% endif %}
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'settings' %}"><span class="lnr lnr-user"></span> User Settings</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout' %}"><span class="lnr lnr-exit"></span> Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </nav>
+        </div>
+    {% endblock %}
+
+    <div id="left-menu">
+        <nav>
+            {% if request.user.is_superuser %}
+                <div class="list-title">
+                    <span class="non-link-title">Administration</span>
+                </div>
+                <ul>
+                    <li class="all_pipelines_menu_item">
+                        <a href="{% url 'recent_jobs' %}">Recent Jobs</a>
+                    </li>
+{#                        <li class="growth_menu_item">#}
+{#                            <a href="{% url 'growth' %}">Growth</a>#}
+{#                        </li>#}
+                    <li class="publisher_menu_item">
+                        <a href="{% url 'publishers.list' %}">Publishers</a>
+                    </li>
+{#                    <li class="demo_menu_item">#}
+{#                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>#}
+{#                    </li>#}
+                    <li class="user_menu_item">
+                        <a href="{% url 'users.list' %}">Users</a>
+                    </li>
+{#                    <li class="journals_menu_item">#}
+{#                        <a href="{% url 'journals.list' %}">Journals</a>#}
+{#                    </li>#}
+{#                    <li class="notification_menu_item">#}
+{#                        <a href="{% url 'notifications.list' %}">Alert Notifications</a>#}
+{#                    </li>#}
+{#                    <li class="alert_menu_item">#}
+{#                        <a href="{% url 'alerts.list' %}">Alert Settings</a>#}
+{#                    </li>#}
+                    <li class="tableau_alert_menu_item">
+                        <a href="{% url 'tableau_alerts.list' %}">Alerts</a>
+                    </li>
+                    <li class="audit_menu_item">
+                        <a href="{% url 'audit' %}">Audit Log</a>
+                    </li>
+                    <li class="rejected_article_overrides_menu_item">
+                        <a href="{% url 'rejected_article_overrides.list_overrides' %}">
+                            Rejected Article Overrides
+                        </a>
+                    </li>
+                    <li class="report_updates_menu_item">
+                        <a href="{% url 'reports.update_reports' %}">Update Reports</a>
+                    </li>
+                    <li class="uptime_overrides_menu_item">
+                        <a href="{% url 'uptime.list_overrides' %}">Uptime Overrides</a>
+                    </li>
+                    <li class="uploaded_files_menu_item">
+                        <a href="{% url 'uploaded_files.list_files' %}">Uploaded Files</a>
+                    </li>
+                    <li class="value_mappings_menu_item">
+                        <a href="{% url 'value_mappings.list_mappings' %}">Metadata Mappings</a>
+                    </li>
+                    <li class="app_content_menu_item">
+                        <a href="{% url 'app_content.list_blocks' %}">App Content</a>
+                    </li>
+                </ul>
+                {% for product in common.PRODUCTS %}
+                    {% if product.is_user_facing %}
+                        <div class="list-title">
+                            <a href="#" class="product-nav-item" product_id="{{ product.id }}">{{ product.name }}</a>
+                        </div>
+                        <ul class="product-nav-menu-{{ product.id }}" id="product-nav-menu-id-{{ product.id }}" style="display:none">
+                            {% for pipeline_entry in product.pipelines %}
+                                <li class="{{ pipeline_entry.pipeline.id }}{% if product.cohort %}_cohort{% endif %}_menu_item">
+                                    <a href="{% url 'pipelines.list' product.id pipeline_entry.pipeline.id %}">{{ pipeline_entry.pipeline.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <script>
+                            {# quick and dirty non-jquery way to initialize the menu (done for speed) #}
+                            if (document.cookie.indexOf('product-menu-{{ product.id }}=open') !== -1) {
+                                document.getElementById('product-nav-menu-id-{{ product.id }}').style.display = 'block';
+                            }
+                        </script>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <ul>
+                    <li class="home_menu_item">
+                        <a href="{% url 'home' %}">Dashboard</a>
+                    </li>
+{#                    <li class="journals_menu_item">#}
+{#                        <a href="{% url 'journals.list' %}">Citable Sections</a>#}
+{#                    </li>#}
+{#                    <li class="notification_menu_item">#}
+{#                        <a href="{% url 'notifications.list' %}">Alert Notifications</a>#}
+{#                    </li>#}
+{#                    <li class="alert_menu_item">#}
+{#                        <a href="{% url 'alerts.list' %}">Alert Settings</a>#}
+{#                    </li>#}
+                    <li class="tableau_alert_menu_item">
+                        <a href="{% url 'tableau_alerts.list' %}">Manage Alerts</a>
+                    </li>
+                    <li class="value_mappings_menu_item">
+                        <a href="{% url 'value_mappings.list_mappings' %}">Metadata Mappings</a>
+                    </li>
+                    <li class="reports_menu_item">
+                        <a class="external-link" href="https://reports.vizors.org" target="_blank">View Reports <span class="lnr lnr-launch"></span></a>
+                    </li>
+                    <li class="support_menu_item">
+                        <a class="external-link" href="{% url 'home.support' %}">Support</a>
+                    </li>
+                </ul>
+
+                <a class="survey-box external-link" href="{% url 'survey' 'manager-nps-survey' %}?source=manager-nav" target="_blank">
+                    Give us your feedback <span class="lnr lnr-launch"></span>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <div id="main-container" class="container-fluid {% if not request.is_at_least_highwire_staff %}publisher-user{% endif %}">
+        {% if form.errors or alt_error_message %}
+            <div class="errors-container">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="lnr lnr-cross"></span>
+                    </button>
+                    {% if alt_error_message %}
+                        {{ alt_error_message }}
+                    {% else %}
+                        There were some problems with your request &mdash; please fix and try again.
+                        {{ form.non_field_errors }}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        {% if messages %}
+            <div class="messages-container">
+                <div class="alert messages alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="lnr lnr-cross"></span>
+                    </button>
+                    <ul>
+                        {% for message in messages %}
+                            <li class="success">
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <script>
+                $(function() {
+                    IvetlWeb.hideMessagesAfterDelay();
+                });
+            </script>
+        {% endif %}
+        {% if reset_url %}
+            <script>
+                $(function() {
+                    IvetlWeb.resetUrl('{{ reset_url|safe }}');
+                });
+            </script>
+        {% endif %}
+        {% block content %}Empty{% endblock %}
+        <script>
+            $(function() {
+                $('#left-menu a:not(.external-link, .product-nav-item), .show-loading, .submit-row button, .submit-row a, .user-dropdown .dropdown-menu a').click(IvetlWeb.showLoading);
+                IvetlWeb.initLeftNav();
+            });
+        </script>
+    </div>
+{% endblock %}

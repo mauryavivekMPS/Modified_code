@@ -1,0 +1,630 @@
+{% extends "base_standard.html" %}
+{% load filters %}
+{% load tags %}
+{% block title %}{% if publisher or demo %}{% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}
+{% else %}New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}{% endif %}{% endblock %}
+{% block body_class %}publisher new-publisher {% if is_demo %}demo{% endif %}{% endblock %}
+
+{% block content %}
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li>
+                    {% if is_demo %}
+                        <a href="{% url 'publishers.list_demos' %}">Demo Requests</a>
+                    {% else %}
+                        <a href="{% url 'publishers.list' %}">Publishers</a>
+                    {% endif %}
+                </li>
+                <li></li>
+            </ol>
+            <h1>
+                {% if publisher or demo %}
+                    {% if publisher %}{{ publisher.name }}{% else %}{{ demo.name }}{% endif %}
+                {% else %}
+                    {% if convert_from_demo %}
+                        Convert Demo to Publisher
+                    {% else %}
+                        New {% if is_demo %}Demo Request{% else %}Publisher{% endif %}
+                    {% endif %}
+                {% endif %}
+            </h1>
+        </div>
+    </div>
+
+    {% if is_demo %}
+        <div class="requirements-box">
+            <h2>Checklist</h2>
+            <ul>
+                <li class="name-requirement">A name for the demo <span class="lnr lnr-check checkmark"></span></li>
+                <li class="date-requirement">A start date <span class="lnr lnr-check checkmark"></span></li>
+                <li class="product-requirement">One or more selected products <span
+                        class="lnr lnr-check checkmark"></span></li>
+                <li class="issns-requirement published-articles-controls" style="display:none">At least one valid
+                    publisher ISSN <span class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-requirement months-free-controls" style="display:none">Specify free period for
+                    ISSNs <span class="lnr lnr-check checkmark"></span></li>
+                <li class="crossref-requirement crossref-controls" style="display:none">A valid login for Crossref <span
+                        class="lnr lnr-check checkmark"></span></li>
+                <li class="months-free-cohort-requirement months-free-cohort-controls" style="display:none">Specify free
+                    period for cohort ISSNs <span class="lnr lnr-check checkmark"></span></li>
+                <li class="rejected-articles-upload-requirement rejected-manuscripts-controls" style="display:none">A
+                    rejected articles file <span class="lnr lnr-check checkmark"></span></li>
+                <li class="requirements-notes">All of the items listed above are required before you can submit for
+                    approval.
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-horizontal publisher-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="demo_id" id="id_demo_id" value="{{ form.initial.demo_id|default:"" }}">
+
+                    {% if not is_demo %}
+                        <div class="form-group row {% if form.publisher_id.errors %}error{% endif %}">
+                            <label for="publisher_id" class="col-sm-2">Publisher ID</label>
+                            <div class="col-sm-3">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {{ form.initial.publisher_id }}
+                                        <input type="hidden" name="publisher_id" id="id_publisher_id"
+                                               value="{{ form.initial.publisher_id }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.publisher_id }}
+                                    {{ form.publisher_id.errors }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group row {% if form.name.errors %}error{% endif %}">
+                        <label for="name" class="col-sm-2">{% if is_demo %}Publisher {% endif %}Name</label>
+                        <div class="col-sm-6">
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+                    </div>
+
+                    {% if is_demo %}
+                        <div class="form-group row {% if form.start_date.errors %}error{% endif %}">
+                            <label for="start_date" class="col-sm-2">Start Date</label>
+                            <div class="col-sm-3">
+                                {{ form.start_date }}
+                                {{ form.start_date.errors }}
+                            </div>
+                        </div>
+
+                        {% if request.user.is_superuser or demo %}
+                            <div class="form-group row {% if form.status.errors %}error{% endif %}">
+                                <label for="status" class="col-sm-2">Status</label>
+                                <div class="col-sm-3">
+                                    {% if request.user.is_superuser %}
+                                        {{ form.status }}
+                                        {{ form.status.errors }}
+                                    {% elif demo %}
+                                        <p class="form-control-static">
+                                            <span class="read-only-label">{{ demo.display_status }}</span>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                {% if request.user.is_superuser %}
+                                    <div class="col-sm-2">
+                                        <p class="form-control-static">
+                                            {% if demo.archived %}
+                                                <a href="#" class="archive-link archive-alert">Unarchive</a>
+                                            {% else %}
+                                                <a href="#" class="archive-link archive-alert"><span
+                                                        class="lnr lnr-trash2"></span> Archive</a>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if request.user.is_superuser %}
+                                <div class="form-group row status-controls" style="display:none">
+                                    <label for="message" class="col-sm-2">Message</label>
+                                    <div class="col-sm-6">
+                                        {{ form.message }}
+                                        {{ form.message.errors }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if request.user.is_superuser and demo and publisher_from_demo %}
+                            <div class="form-group row">
+                                <label for="status" class="col-sm-2">Publisher</label>
+                                <div class="col-sm-6">
+                                    <p class="form-control-static">
+                                        <a href="{% url 'publishers.edit' publisher_from_demo.publisher_id %}">{{ publisher_from_demo.display_name }}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if not is_demo %}
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Email</label>
+                            <div class="col-sm-6">
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="note" class="col-sm-2">Note</label>
+                            <div class="col-sm-6">
+                                {{ form.note }}
+                                {{ form.note.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2">Restrictions</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.pilot }} Enable Pilot restrictions</label>
+                                    <label>{{ form.demo }} Enable Demo restrictions</label>
+                                </div>
+                                {% if demo_from_publisher %}
+                                    <p class="form-control-static">
+                                        <span class="lnr lnr-arrow-right demo-publisher-arrow"></span>
+                                        <a href="{% url 'publishers.edit_demo' demo_from_publisher.demo_id %}">{{ demo_from_publisher.name }}</a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group row scopus-controls">
+                            <label for="email" class="col-sm-2">Scopus Keys</label>
+                            {% if not publisher %}
+                                <div class="col-sm-1">
+                                    <p class="form-control-static">Generate</p>
+                                </div>
+                                <div class="col-sm-1 num-scopus-keys-control-col">
+                                    {{ form.num_scopus_keys }}
+                                </div>
+                                <div class="col-sm-2 num-scopus-keys-suffix-col">
+                                    <p class="form-control-static">API keys</p>
+                                </div>
+                            {% else %}
+                                <div class="col-sm-6">
+                                    {{ form.scopus_api_keys }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    {% endif %}
+
+                    {% if not is_demo %}
+                        <h2>Tableau Configuration</h2>
+                        <div class="form-group row reports-login-controls" style="display:none">
+                            <label for="reports_username" class="col-sm-2">Tableau Login</label>
+                            <div class="col-sm-3">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {% if not form.initial.reports_username %}
+                                            <span class="no-reports-login">(No login created)</span>
+                                        {% else %}
+                                            {{ form.initial.reports_username }}
+                                        {% endif %}
+                                        <input type="hidden" name="reports_username"
+                                               value="{{ form.initial.reports_username }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.reports_username }}
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-3">
+                                {% if publisher and form.initial.reports_username %}
+                                    <p class="form-control-static set-reports-password-link"><a href="#">Set
+                                        password...</a></p>
+                                {% endif %}
+                                {{ form.reports_password }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="reports_project" class="col-sm-2">Project Folder</label>
+                            <div class="col-sm-6">
+                                {% if publisher %}
+                                    <p class="form-control-static">
+                                        {{ form.initial.reports_project }}
+                                        <input type="hidden" name="reports_project"
+                                               value="{{ form.initial.reports_project }}">
+                                    </p>
+                                {% else %}
+                                    {{ form.reports_project }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </form>
+
+                <form class="form-horizontal publisher-form">
+                    <h2>Vizor Configuration</h2>
+                    <div class="form-group row">
+                        <label class="col-sm-2">Vizors</label>
+                        <div class="col-sm-6">
+                            <div class="checkbox">
+                                <label>{{ form.impact_vizor_product_group }} ImpactVizor</label>
+                                <label>{{ form.usage_vizor_product_group }} UsageVizor</label>
+                                <label>{{ form.social_vizor_product_group }} SocialVizor</label>
+                                <label>{{ form.meta_vizor_product_group }} MetaVizor</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="published-articles-controls" style="display:none">
+
+                    <form class="form-horizontal publisher-form">
+
+                        <div class="form-group row">
+                            <label class="col-sm-2">HighWire</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.hw_addl_metadata_available }} Use HighWire metadata</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="institutions-controls" style="display:none">
+                            <div class="highwire-controls" style="display:none">
+                                <div class="form-group row">
+                                    <label for="ac_databases" class="col-sm-2">AC Databases</label>
+                                    <div class="col-sm-6">
+                                        {{ form.ac_databases }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2">Crossref</label>
+                            <div class="col-sm-6">
+                                <div class="checkbox">
+                                    <label>{{ form.use_crossref }} Use Crossref API</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="crossref-controls" style="display:none">
+                            <div class="form-group row crossref-form-row">
+                                <label for="crossref_username" class="col-sm-2">Crossref Login</label>
+                                <div class="col-sm-3">
+                                    {{ form.crossref_username }}
+                                    <ul class="crossref-error-message errorlist" style="display:none">
+                                        <li>Validation failed, try again.</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-3">
+                                    {{ form.crossref_password }}
+                                </div>
+                                <div class="col-sm-2">
+                                    <p class="form-control-static">
+                                        <a href="#" class="validate-crossref-button"
+                                           {% if not is_demo and form.crossref_username.value %}style="display:none"{% endif %}>Validate
+                                            Login</a>
+                                        <i class="fa fa-spinner fa-pulse validate-crossref-loading"
+                                           style="display:none"></i>
+                                        <span class="validate-crossref-checkmark lnr lnr-check checkmark"
+                                              {% if is_demo or not form.crossref_username.value %}style="display:none"{% endif %}></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="issn-values-container">
+                            {{ form.issn_values }}
+                            {% for issn_value in issn_values_list %}
+                                {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=False %}
+                            {% empty %}
+                                {% include "publishers/include/issn_row.html" with index="pa-0" cohort=False %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group row issn-add-row">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                {% if not read_only %}
+                                    <p class="form-control-static">
+                                        <a href="#" class="add-issn-button">+ Add Another</a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="cohort-articles-controls" style="display:none">
+                            <div id="issn-values-cohort-container">
+                                {{ form.issn_values_cohort }}
+                                {% for issn_value in issn_values_cohort_list %}
+                                    {% include "publishers/include/issn_row.html" with index=issn_value.index cohort=True %}
+                                {% empty %}
+                                    {% include "publishers/include/issn_row.html" with index="ca-0" cohort=True %}
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group row issn-add-row">
+                                <div class="col-sm-2 col-sm-offset-2">
+                                    <p class="form-control-static">
+                                        <a href="#" class="add-issn-cohort-button">+ Add Another</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+
+                    {% if is_demo or convert_from_demo %}
+                        <div class="form-horizontal">
+                            <h2>Demo Files</h2>
+                        </div>
+                    {% endif %}
+
+                    {% if is_demo %}
+                        <div class="form-horizontal publisher-form demo-files-fake-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Metadata Files</label>
+                                <div class="col-sm-10">
+                                    {% if read_only and not demo_files_custom_article_data %}
+                                        <p class="form-control-static no-files-uploaded-message">
+                                            No files uploaded
+                                        </p>
+                                    {% else %}
+                                        {% include "pipelines/include/pending_files_form.html" with is_demo=True read_only=read_only demo_id=form.i pending_files=demo_files_custom_article_data additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.published_articles pipeline=common.PIPELINE_BY_ID.custom_article_data %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if convert_from_demo %}
+                        <div class="form-horizontal publisher-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Metadata Files</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static no-files-uploaded-message">
+                                        {% if demo_files_custom_article_data %}
+                                            {{ demo_files_custom_article_data|length }} file
+                                            {{ demo_files_custom_article_data|pluralize }} uploaded for demo
+                                        {% else %}
+                                            No files uploaded for demo
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if is_demo %}
+                        <div class="rejected-manuscripts-controls" style="display:none">
+                            <div class="form-horizontal publisher-form demo-files-fake-form">
+                                <div class="form-group row">
+                                    <label class="col-sm-2">Rejected Article Files</label>
+                                    <div class="col-sm-10">
+                                        {% if read_only and not demo_files_rejected_articles %}
+                                            <p class="form-control-static no-files-uploaded-message">
+                                                No files uploaded
+                                            </p>
+                                        {% else %}
+                                            {% include "pipelines/include/pending_files_form.html" with is_demo=True pending_files=demo_files_rejected_articles additional=True includes_invalid_files=includes_invalid_files only_pending=True product=common.PRODUCT_BY_ID.rejected_manuscripts pipeline=common.PIPELINE_BY_ID.rejected_articles %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if convert_from_demo %}
+                        <div class="form-horizontal publisher-form">
+                            <div class="form-group row">
+                                <label class="col-sm-2">Rejected Article Files</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static no-files-uploaded-message">
+                                        {% if demo_files_rejected_articles %}
+                                            {{ demo_files_rejected_articles|length }} file
+                                            {{ demo_files_rejected_articles|pluralize }} uploaded for demo
+                                        {% else %}
+                                            No files uploaded for demo
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <form class="form-horizontal publisher-form">
+
+                    {% if is_demo %}
+                        <h2>Demo Notes</h2>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2">Notes</label>
+                            <div class="col-sm-6">
+                                {{ form.demo_notes }}
+                                {{ form.demo_notes.errors }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if request.user.is_superuser or not read_only %}
+                      <form class="form-horizontal publisher-form">
+                        <h2>Modify Tableau Server</h2>
+                        <div class="form-group row modify-tableau-row">
+                          <div class="col-sm-2">
+                            <label>Important Note: Please Read</label>
+                          </div>
+                          <div class="col-sm-6">
+                            <p>Modifying Tableau through publisher form updates caused a major issue in the past.
+                              Saving many publisher forms at once, and triggering refreshes to all of each publisher's datasources,
+                              has the potential to overload Tableau and cause certain API requests to fail.
+                            </p>
+                            <p>
+                              This caused a major issue including loss of many publisher data sources and the need to painstakingly reload all data into Tableau.
+                              When using the below checkboxes, allow time between publisher form saves (at least 1 minute)
+                              and monitor the health of the Tableau Server to ensure it does not get overloaded.
+                            </p>
+                            <p>You can use either checkbox. The "and include new publisher setup" checkbox will additionally create
+                              the Tableau project and user. It should be used when first creating the publisher.
+                            </p>
+                            <p>
+                              For subsequent changes to the publisher profile when the Tableau project and user already exist,
+                              use the "Modify Tableau" option. The would be used for cases such as adding a new Vizor product like Usage Vizor
+                              to an existing publisher project.
+                            </p>
+                            <p>For changes that don't affect Tableau, such as changing a PubMed override on one or more journals,
+                              or editing the email field or note, leave the boxes below unchecked.
+                            </p>
+                            <div>
+                      {#      <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+                              <input id="id_modify_tableau" class="tableau-flags" type="checkbox">
+                              <span class="modify-tableau-text" title="Modify Tableau: Saving this form can make edits to the Tableau account, workbooks and datasources if necessary. Note that triggered refreshes can put load on Tableau. Only choose to modify Tableau when necessary.">
+                                Modify Tableau
+                              </span>
+                            </div>
+                            <div>
+                      {#      <span class="lnr lnr-arrow-right extra-journal-info-arrow"></span>#}
+                              <input id="id_modify_tableau_new" class="tableau-flags" type="checkbox">
+                              <span class="modify-tableau-text" title="Modify Tableau: Saving this form can make edits to the Tableau account, workbooks and datasources if necessary. Note that triggered refreshes can put load on Tableau. Only choose to modify Tableau when necessary.">
+                                Modify Tableau and include new Publisher Setup
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                      <div class="form-group submit-row">
+                          <button class="btn btn-primary submit-button save-button disabled" disabled="disabled">
+                              {% if publisher or demo %}
+                                  Save Changes
+                              {% else %}
+                                  Add {% if is_demo %}Demo{% else %}Publisher{% endif %}
+                              {% endif %}
+                          </button>
+                          {% if is_demo and not demo_publisher %}
+                              {% if request.user.is_superuser %}
+                                  <button class="convert-to-publisher-button btn btn-primary submit-button">
+                                      Convert to Publisher
+                                  </button>
+                              {% else %}
+                                  {% if form.initial.status == 'creating' or not form.initial.status %}
+                                      <button class="submit-for-approval-button btn btn-primary submit-button disabled"
+                                              disabled="disabled">
+                                          {% if publisher or demo %}Save{% else %}Add{% endif %} and Submit for
+                                          Approval
+                                      </button>
+                                  {% endif %}
+                              {% endif %}
+                          {% endif %}
+                          <span class="cancel">or <a href="../">Cancel</a></span>
+                      </div>
+                    {% endif %}
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if from_value == 'new-success' or from_value == 'save-success' %}
+        <div class="modal fade" id="creating-publisher-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="waiting-icon"><i class="fa fa-spinner fa-pulse"></i></div>
+                    <div class="waiting-message">
+                        {% if from_value == 'save-success' %}
+                            Waiting for the save to complete and
+                            (only if specified) Tableau reports to be updated...
+                        {% else %}
+                            Waiting for the profile creation to complete and
+                            (only if specificed) Tableau reports to be built...
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <form id="hidden-publisher-form" method="post">
+        {% csrf_token %}
+        {% for field in form.fields %}
+            <input type="hidden" name="{{ field }}">
+        {% endfor %}
+    </form>
+
+    {% if demo %}
+        <form id="archive-demo-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="demo_id" value="{{ form.initial.demo_id }}">
+            <input type="hidden" name="archive" value="{% if demo.archived %}0{% else %}1{% endif %}">
+        </form>
+    {% endif %}
+
+    <div class="modal fade confirm-archive-demo" id="confirm-archive-demo-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">{% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo
+                        Request</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to {% if demo.archived %}un{% endif %}archive <b>{{ demo.name }}</b>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary confirm-archive-demo-button">Yes,
+                        {% if demo.archived %}Unarchive{% else %}Archive{% endif %} Demo Request
+                    </button>
+                    <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function () {
+            EditPublisherPage.init({
+                publisherId: '{{ publisher.publisher_id }}',
+                validateCrossrefUrl: '{% url 'publishers.validate_crossref' %}',
+                validateIssnUrl: '{% url 'publishers.validate_issn' %}',
+                addIssnValuesUrl: '{% url 'publishers.new_issn' %}',
+                {% if publisher %}
+                    buildingPollUrl: '{% url 'publishers.check_setup_status' %}?publisher={{ publisher.publisher_id }}',
+                    buildingSuccessUrl: '{% url 'publishers.list' %}?from={{ from_value }}',
+                    buildingErrorUrl: '{% url 'publishers.list' %}',
+                {% endif %}
+                csrfToken: '{{ csrf_token }}',
+                isDemo: {% if is_demo %}true{% else %}false{% endif %},
+                convertFromDemo: {% if convert_from_demo %}true{% else %}false{% endif %},
+                previousStatus: '{{ form.initial.status }}'
+            });
+
+            {% if from_value == 'new-success' %}
+                EditPublisherPage.showBuildingReportsModal(true);
+            {% endif %}
+
+            {% if from_value == 'save-success' %}
+                EditPublisherPage.showBuildingReportsModal(false);
+            {% endif %}
+
+            {% if is_demo %}
+                FileUploadWidget.init({
+                    demoId: '{{ form.initial.demo_id }}',
+                    uploadUrl: '{% url 'pipelines.upload_pending_file_inline' %}',
+                    deleteUrl: '{% url 'pipelines.delete_pending_file_inline' %}',
+                    isDemo: true,
+                    csrfToken: '{{ csrf_token }}'
+                });
+            {% endif %}
+        });
+    </script>
+{% endblock %}

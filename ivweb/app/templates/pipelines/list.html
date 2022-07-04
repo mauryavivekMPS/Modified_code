@@ -1,0 +1,273 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}{{ pipeline.name }}{% endblock %}
+{% block body_class %}{{ pipeline.id }}{% if product.cohort %}_cohort{% endif %}_pipeline{% endblock %}
+{% block content %}
+
+    {% if request.user.is_superuser and not pipeline.has_file_input %}
+        {% if pipeline.single_publisher_pipeline %}
+            <form id="run-single-publisher-pipeline-form" class="hidden-form" method="post" action="run/">
+                {% csrf_token %}
+                <input type="hidden" name="publisher" value="{{ pipeline.single_publisher_id }}">
+                {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
+                    <input type="hidden" id="id_from_date" name="from_date">
+                {% endif %}
+                {% if pipeline.include_date_range_controls %}
+                    <input type="hidden" id="id_to_date" name="to_date">
+                {% endif %}
+                <input type="hidden" name="send_alerts" value="">
+            </form>
+        {% else %}
+            <form id="run-pipeline-form" class="hidden-form" method="post" action="run/">
+                {% csrf_token %}
+                <input type="hidden" id="id_publisher_filter" name="publisher_filter" value="{{ filter_param }}">
+                {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
+                    <input type="hidden" id="id_from_date" name="from_date">
+                {% endif %}
+                {% if pipeline.include_date_range_controls %}
+                    <input type="hidden" id="id_to_date" name="to_date">
+                {% endif %}
+                <input type="hidden" name="send_alerts" value="">
+            </form>
+        {% endif %}
+    {% endif %}
+
+    <div class="row header-row with-breadcrumb">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li>{{ product.name }}</li>
+                <li></li>
+            </ol>
+            <h1>{{ pipeline.name }}</h1>
+
+            {% if request.user.is_superuser and not pipeline.has_file_input %}
+                {% if pipeline.single_publisher_pipeline %}
+                    <a class="btn btn-default small run-single-publisher-pipeline-button" href="#" style="display:none">
+                        {{ pipeline.pipeline_run_button_label }}{% if pipeline.include_date_range_controls %}...{% endif %}
+                    </a>
+                    <i class="fa fa-spinner fa-pulse run-single-publisher-pipeline-loading-icon" style="display:none"></i>
+                    {% if pipeline.use_process_all_since_high_water_mark %}
+                        <span class="last-updated-message">Last date processed: {{ high_water_mark }}</span>
+                    {% endif %}
+                {% else %}
+                    <a class="btn btn-default small run-button" href="#">Run for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}</a>
+                    <i class="fa fa-spinner fa-pulse run-for-all-loading-icon" style="display:none"></i>
+                {% endif %}
+            {% endif %}
+
+            {% if not pipeline.hide_demo_filter %}
+                <ul class="list-tabs">
+                    <li><a href="?filter=all" {% if filter_param == 'all' %}class="active"{% endif %}>Show All</a></li>
+                    <li><a href="?filter=demos" {% if filter_param == 'demos' %}class="active"{% endif %}>Demo Publishers</a></li>
+                    <li><a href="?filter=publishers" {% if filter_param == 'publishers' %}class="active"{% endif %}>Production Publishers</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if request.user.is_superuser and has_alerts %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="monthly-message-container">
+                    <div class="monthly-message-summary">
+                        <p>
+                            <i class="lnr lnr-chevron-right monthly-message-chevron"></i>
+                            <span class="monthly-message-label" {% if not monthly_message %}style="display:none"{% endif %}><span>Monthly message</span>: </span>
+                            <span class="monthly-message-truncated-display">
+                                {% if monthly_message %}
+                                    {{ monthly_message|truncatechars:100 }}
+                                {% else %}
+                                    No monthly message
+                                {% endif %}
+                            </span>
+                            <a class="monthly-message-link monthly-message-link-add" href="#" {% if monthly_message %}style="display:none"{% endif %}>Add one</a>
+                            <a class="monthly-message-link monthly-message-link-edit" href="#" {% if not monthly_message %}style="display:none"{% endif %}>Edit</a>
+                        </p>
+                    </div>
+                    <div class="monthly-message-form" style="display:none">
+                        <textarea class="form-control monthly-message-textarea" placeholder="Enter monthly message here">{{ monthly_message }}</textarea>
+                        <p class="monthly-message-submit-row">
+                            <button type="button" class="btn btn-primary small save-monthly-message">Save Message</button>
+                            <span class="cancel">or <a href="#" class="cancel-monthly-message">Cancel</a></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="status-col pipeline-status-col">
+                            <span class="summary-value">
+                                {% sort_column "Status" "status" sort_key sort_descending use_status_icon=True %}
+                            </span>
+                        </th>
+                        <th colspan="2">{% sort_column "Publisher" "publisher" sort_key sort_descending %}</th>
+                        <th class="time-col">{% sort_column "End Time" "end_time" sort_key sort_descending %}</th>
+                        <th class="time-col">{% sort_column "Start Time" "start_time" sort_key sort_descending %}</th>
+                        <th class="duration-col text-right">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for publisher_runs in runs_by_publisher %}
+                        {% include "pipelines/include/publisher_details.html" %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not pipeline.single_publisher_pipeline %}
+        <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %} {% if pipeline.include_from_date_controls %}confirm-dialog-with-from-date-controls{% endif %}" id="confirm-run-one-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="confirm-run-one-modal-label"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="confirm-run-one-modal-content"></div>
+                        {% if pipeline.include_date_range_controls %}
+                            <p class="modal-indented-form">
+                                <input type="text" id="id_run_one_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                to
+                                <input type="text" id="id_run_one_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                            </p>
+                        {% elif pipeline.include_from_date_controls %}
+                            <p class="modal-indented-form">
+                                Start from: <input type="text" id="id_run_one_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                            </p>
+                        {% endif %}
+                        {% if has_alerts %}
+                            <div class="checkbox send-alerts-checkbox">
+                                <label>
+                                    <input type="checkbox" name="send_alerts" value="1">
+                                    Send any alerts associated with this pipeline
+                                </label>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary confirm-run-one-submit-button">Yes, Run Pipeline</button>
+                        <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if request.user.is_superuser and not pipeline.has_file_input %}
+        {% if pipeline.single_publisher_pipeline %}
+            <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %}" id="confirm-run-single-publisher-pipeline-modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title">Run Pipeline</h4>
+                        </div>
+                        <div class="modal-body">
+                            {% if pipeline.include_date_range_controls %}
+                                <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
+                                <p class="modal-indented-form">
+                                    <input type="text" name="from_date" id="id_run_single_publisher_pipeline_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                    to
+                                    <input type="text" name="to_date" id="id_run_single_publisher_pipeline_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                                </p>
+                                <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
+                            {% else %}
+                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline?</p>
+                            {% endif %}
+                            {% if has_alerts %}
+                                <div class="checkbox send-alerts-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="send_alerts" value="1">
+                                        Send any alerts associated with this pipeline
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary confirm-run-single-publisher-pipeline-submit-button">Yes, Run Pipeline</button>
+                            <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="modal fade confirm-dialog {% if pipeline.include_date_range_controls %}confirm-dialog-with-date-range-controls{% endif %} {% if pipeline.include_from_date_controls %}confirm-dialog-with-from-date-controls{% endif %}" id="confirm-run-all-modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title">Run Pipeline for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}</h4>
+                        </div>
+                        <div class="modal-body">
+                            {% if pipeline.include_date_range_controls %}
+                                <p>Run the {{ pipeline.name }} pipeline for the following dates:</p>
+                                <p class="modal-indented-form">
+                                    <input type="text" id="id_run_all_modal_from_date" class="form-control date-control" value="{{ from_date }}">
+                                    to
+                                    <input type="text" id="id_run_all_modal_to_date" class="form-control date-control" value="{{ to_date }}">
+                                </p>
+                                {% if pipeline.use_process_all_since_high_water_mark %}
+                                    <p class="last-updated-message">Last date processed: {{ high_water_mark }}</p>
+                                {% endif %}
+                            {% else %}
+                                <p>Are you sure you want to run the {{ pipeline.name }} pipeline for {% if filter_param == 'demos' %}demo publishers{% elif filter_param == 'publishers' %}production publishers{% else %}all publishers{% endif %}?</p>
+                            {% endif %}
+                            {% if has_alerts %}
+                                <div class="checkbox send-alerts-checkbox">
+                                    <label>
+                                        <input type="checkbox" name="send_alerts" value="1">
+                                        Send any alerts associated with this pipeline
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary confirm-run-all-submit-button">
+                                Yes, Run for {% if filter_param == 'demos' %}Demo Publishers{% elif filter_param == 'publishers' %}Production Publishers{% else %}All Publishers{% endif %}
+                            </button>
+                            <span class="cancel">or <a href="#" data-dismiss="modal">Cancel</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            PipelinePage.init({
+                productId: '{{ product.id }}',
+                pipelineId: '{{ pipeline.id }}',
+                publishers: {{ publisher_id_list_as_json|safe }},
+                tailUrl: '{% url 'pipelines.tail' product.id pipeline.id %}',
+                jobActionUrl: '{% url 'pipelines.job_action' product.id pipeline.id %}',
+                updatePublisherUrl: '{% url 'pipelines.include_updated_publisher_runs' product.id pipeline.id %}',
+                runForPublisherUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
+                runForAllUrl: '{% url 'pipelines.run' product.id pipeline.id %}',
+                isSuperuser: {% if request.user.is_superuser %}true{% else %}false{% endif %},
+                csrfToken: '{{ csrf_token }}',
+                pipelineName: '{{ pipeline.name }}',
+                singlePublisherPipeline: {% if pipeline.single_publisher_pipeline %}true{% else %}false{% endif %},
+                includeDateRangeControls: {% if pipeline.include_date_range_controls %}true{% else %}false{% endif %},
+                includeFromDateControls: {% if pipeline.include_from_date_controls %}true{% else %}false{% endif %},
+                supportsRestart: {% if pipeline.supports_restart %}true{% else %}false{% endif %}
+            });
+        });
+    </script>
+{% endblock %}

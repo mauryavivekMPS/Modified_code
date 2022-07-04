@@ -1,0 +1,205 @@
+{% load filters %}
+{% load tags %}
+<tr class="{{ publisher_runs.publisher.publisher_id }}_summary_row publisher-summary-row" current_job_id="{{ publisher_runs.recent_run.job_id }}" current_task_id="{{ publisher_runs.recent_task.task_id }}" current_task_status="{{ publisher_runs.recent_task.status }}">
+    {% if not all_pipelines %}
+        <td class="status-col pipeline-status-col">
+            <a name="{{ publisher_runs.publisher.publisher_id }}" class="slip-under-header"></a>
+            {% if publisher_runs.runs %}
+                <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                    {% status_icon publisher_runs.recent_run %}
+                </span>
+            {% else %}
+                <span class="summary-value" {% if opened %}style="display:none"{% endif %}>
+                    {% status_icon %}
+                </span>
+            {% endif %}
+        </td>
+    {% endif %}
+    {% if not all_pipelines and request.user.is_superuser %}
+        <td class="opener-col">
+            <span class="lnr lnr-chevron-down opener-icon {{ publisher_runs.publisher.publisher_id }}_closer" {% if opened %}style="display:none"{% endif %}></span>
+            <span class="lnr lnr-chevron-up closer-icon {{ publisher_runs.publisher.publisher_id }}_opener" {% if not opened %}style="display:none"{% endif %}></span>
+        </td>
+    {% endif %}
+    <td {% if not all_pipelines and not request.user.is_superuser %}colspan="2"{% endif %}>
+        {% if not all_pipelines and request.user.is_superuser %}
+            <a href="#" class="publisher-link" publisher_id="{{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.publisher.publisher_id }}</a>
+        {% else %}
+            {{ publisher_runs.publisher.publisher_id }}
+        {% endif %}
+        {% if publisher_runs.runs %}
+            <span class="recent-run summary-value" {% if opened %}style="display:none"{% endif %}> &ndash;
+                {% if publisher_runs.recent_run.status == 'started' %}
+                    Started
+                {% elif publisher_runs.recent_run.status == 'in-progress' %}
+                    Running
+                {% elif publisher_runs.recent_run.status == 'completed' %}
+                    Completed
+                {% elif publisher_runs.recent_run.status == 'error' %}
+                    Failed
+                {% endif %}
+                {% if publisher_runs.recent_run.status == 'error' %}
+                    / {{ publisher_runs.recent_task.task_id }}
+                {% endif %}
+            </span>
+        {% endif %}
+        {% if publisher_runs.recent_run.status == 'in-progress' %}
+            {% with current=publisher_runs.recent_run.current_task_count total=publisher_runs.recent_run.total_task_count percent=publisher_runs.recent_run.percent_complete %}
+                <div class="progress pipeline-progress" data-toggle="tooltip" data-placement="top" title="Task {{ current }} of {{ total }}">
+                  <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;"></div>
+                </div>
+            {% endwith %}
+        {% else %}
+            {% if publisher_runs.pending_files or not pipeline.has_file_input %}
+                <form class="run-pipeline-for-publisher-inline-form" method="post" action="run/" publisher_name="{{ publisher_runs.publisher.name }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="publisher" value="{{ publisher_runs.publisher.publisher_id }}">
+                    <input type="hidden" name="move_pending_files" value="1">
+                    {% if pipeline.supports_restart %}
+                        <input type="hidden" name="restart_job_id" value="">
+                        <input type="hidden" name="restart_from_start" value="">
+                    {% endif %}
+                    {% if pipeline.include_date_range_controls or pipeline.include_from_date_controls %}
+                        <input type="hidden" name="from_date" value="{{ publisher_runs.next_run_from_date }}">
+                    {% endif %}
+                    {% if pipeline.include_date_range_controls %}
+                        <input type="hidden" name="to_date" value="{{ publisher_runs.next_run_to_date }}">
+                    {% endif %}
+                    <input type="hidden" name="send_alerts" value="">
+                    {% if not pipeline.single_publisher_pipeline %}
+                        <button type="submit" class="btn btn-default submit-button run-pipeline-for-publisher-button">
+                            Run
+                        </button>
+                    {% endif %}
+                    <i class="fa fa-spinner fa-pulse run-loading-icon" style="display:none"></i>
+                </form>
+            {% endif %}
+            {% if pipeline.has_file_input %}
+                <a class="btn btn-default little-upload-button" href="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_runs.publisher.publisher_id }}">+ Upload</a>
+                {% if publisher_runs.pending_files %}
+                    <a class="little-files-link" href="{% url 'pipelines.pending_files' product.id pipeline.id %}?publisher={{ publisher_runs.publisher.publisher_id }}">{{ publisher_runs.pending_files|length }} pending file{{ publisher_runs.pending_files|pluralize }}</a>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
+    <td><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</span></td>
+    <td class="text-right"><span class="summary-value" {% if opened %}style="display:none"{% endif %}>{{ publisher_runs.recent_run.duration_seconds|nullable_duration }}</span></td>
+</tr>
+{% if request.user.is_superuser %}
+    {% if publisher_runs.runs %}
+        {% for run_item in publisher_runs.runs %}
+            <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+                <td class="status-col pipeline-status-col">
+                    {% status_icon run_item.run %}
+                </td>
+                <td class="opener-col"></td>
+                <td class="run-col">
+                    <span class="run-name">Job {{ run_item.run.display_name }}</span>
+                    {% if forloop.first %}
+                        <div class="dropdown {{ publisher_runs.publisher.publisher_id }}_job-actions-dropdown job-actions-dropdown" job_id="{{ run_item.run.job_id }}" publisher_id="{{ publisher_runs.publisher.publisher_id }}">
+                            <a class="job-actions-menu-icon" href="#" data-toggle="dropdown"><span class="lnr lnr-cog"></span></a>
+                            <ul class="dropdown-menu">
+                                {% if run_item.run.status == 'in-progress' %}
+                                    <li><a class="action-link" href="#" action="stop-at-next-task">Stop job</a></li>
+                                {% else %}
+                                    <li class="disabled"><a href="#" onclick="return false">Stop job</a></li>
+                                {% endif %}
+                                {% if pipeline.supports_restart %}
+                                    <li class="divider"></li>
+                                    {% if run_item.run.status != 'in-progress' %}
+                                        <li><a class="action-link" href="#" action="restart-from-first-task">Restart from first task</a></li>
+                                    {% else %}
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from first task</a></li>
+                                    {% endif %}
+                                    {% if run_item.run.status == 'error' %}
+                                        <li><a class="action-link" href="#" action="restart-from-stopped-task">Restart from stopped task</a></li>
+                                    {% else %}
+                                        <li class="disabled"><a href="#" onclick="return false">Restart from stopped task</a></li>
+                                    {% endif %}
+                                {% endif %}
+                                <li class="divider"></li>
+                                {% if run_item.run.status == 'in-progress' %}
+                                    <li><a class="action-link mark-job-as-stopped-link" href="#" action="mark-job-as-stopped">Mark job as stopped</a></li>
+                                {% else %}
+                                    <li class="disabled"><a href="#" onclick="return false">Mark job as stopped</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </td>
+                <td>{{ run_item.run.end_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                <td>{{ run_item.run.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                <td class="text-right">{{ run_item.run.duration_seconds|nullable_duration }}</td>
+            </tr>
+            {% if forloop.first or run_item.run.status == 'in-progress' %}
+                {% for task in run_item.tasks %}
+                    <tr class="{{ task.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+                        <td class="status-col">
+                            {% status_icon task %}
+                        </td>
+                        <td class="opener-col"></td>
+                        <td class="task-col">
+                            <span class="order">{{ forloop.counter }}.</span>
+                            <a href="#" class="task-link" publisher_id="{{ task.publisher_id }}" job_id="{{ task.job_id }}" task_id="{{ task.task_id }}">{{ task.task_id }}</a>
+                            {% if task.status == 'in-progress' %}
+                                {% with current=task.current_record_count total=task.total_record_count percent=task.percent_complete %}
+                                    <div class="progress task-progress" data-toggle="tooltip" data-placement="top" title="{% if current and total %}Processing {{ current }} of {{ total }} records{% endif %}">
+                                      <div class="progress-bar" role="progressbar" style="width: {{ percent }}%;"></div>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                        <td>{{ task.end_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                        <td>{{ task.start_time|date:"Y-m-d H:i:s"|nullable_date }}</td>
+                        <td class="text-right">{{ task.duration_seconds|nullable_duration }}</td>
+                    </tr>
+                    <tr class="{{ task.publisher_id }}_row {{ task.publisher_id }}_{{ task.job_id }}_{{ task.task_id }}_row tail-row" {% if task.status != 'in-progress' or not opened %}style="display:none"{% endif %}>
+                        <td class="status-col pipeline-status-col"></td>
+                        <td class="opener-col"></td>
+                        <td class="tail-col" colspan="5">
+                            <div class="tail-output log-output"><pre></pre></div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            {% if forloop.last and publisher_runs.additional_previous_runs %}
+                <tr class="{{ run_item.run.publisher_id }}_row {% if not forloop.first %}previous-run{% endif %}" {% if not opened %}style="display:none"{% endif %}>
+                    <td class="status-col pipeline-status-col"></td>
+                    <td class="opener-col"></td>
+                    <td class="run-col additional-previous-runs">{{ publisher_runs.additional_previous_runs }} previous run{{ publisher_runs.additional_previous_runs|pluralize }}...</td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <tr class="{{ publisher_runs.publisher.publisher_id }}_row" {% if not opened %}style="display:none"{% endif %}>
+            <td class="status-col pipeline-status-col">
+                <span class="summary-value">
+                    {% status_icon %}
+                </span>
+            </td>
+            <td class="opener-col"></td>
+            <td class="run-col">No recent runs</td>
+            <td><span class="null-value">&ndash;</span></td>
+            <td><span class="null-value">&ndash;</span></td>
+            <td class="text-right"><span class="null-value">&ndash;</span></td>
+        </tr>
+    {% endif %}
+{% endif %}
+
+{% block page_scripts %}
+    <script>
+        $(function() {
+            PipelinePage.cancelTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
+            {% if publisher_runs.recent_task.status == 'in-progress' %}
+                PipelinePage.startTailForPublisher('{{ publisher_runs.publisher.publisher_id }}');
+            {% endif %}
+            PipelinePage.onUpdatePublisher('{{ publisher_runs.publisher.publisher_id }}');
+            IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_summary_row');
+            IvetlWeb.initTooltips('.{{ publisher_runs.publisher.publisher_id }}_row');
+        });
+    </script>
+{% endblock %}

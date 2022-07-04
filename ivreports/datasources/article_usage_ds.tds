@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20191.19.0417.1429                               -->
+<datasource formatted-name='article_usage_ds' inline='true' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location derived-from='/datasources/article_usage_ds?rev=1.0' id='article_usage_ds' path='/datasources' revision='1.0' />
+  <connection class='federated'>
+    <named-connections>
+      <named-connection name='article_usage_dsleaf'>
+        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' username='' workgroup-auth-mode='prompt' />
+      </named-connection>
+    </named-connections>
+    <relation connection='article_usage_dsleaf' name='article_usage' type='text'>SELECT * FROM impactvizor.article_usage WHERE publisher_id=&apos;blood&apos;;</relation>
+    <refresh increment-key='' incremental-updates='false' />
+    <metadata-records>
+      <metadata-record class='column'>
+        <remote-name>publisher_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[publisher_id]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>publisher_id</remote-alias>
+        <ordinal>1</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>false</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>article_doi</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[article_doi]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>article_doi</remote-alias>
+        <ordinal>2</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>false</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>usage_type</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[usage_type]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>usage_type</remote-alias>
+        <ordinal>3</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>false</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>month_number</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[month_number]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>month_number</remote-alias>
+        <ordinal>4</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>false</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>month_usage</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[month_usage]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>month_usage</remote-alias>
+        <ordinal>5</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>usage_start_date</remote-name>
+        <remote-type>7</remote-type>
+        <local-name>[usage_start_date]</local-name>
+        <parent-name>[article_usage]</parent-name>
+        <remote-alias>usage_start_date</remote-alias>
+        <ordinal>6</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+  </connection>
+  <column aggregation='Sum' datatype='integer' name='[month_number]' role='dimension' type='ordinal' />
+  <layout dim-ordering='alphabetic' dim-percentage='0.569565' measure-ordering='alphabetic' measure-percentage='0.430435' show-structure='true' />
+  <semantic-values>
+    <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+  </semantic-values>
+</datasource>

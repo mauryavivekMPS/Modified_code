@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" class="{% block html_class %}{% endblock %}">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{{ constants.APP_LABEL }}{% endblock %}</title>
+        <meta name="description" content="Impact Vizor">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <link rel="shortcut icon" href="/static/dist/hw.ico">
+
+        <!-- Compiled custom + bootstrap less -->
+        <link rel="stylesheet" type="text/css" href="/static/dist/everything-2018-04-04.css"/>
+        <link rel="stylesheet" type="text/css" href="/static/dist/hyperlinearicons.css">
+        <link rel="stylesheet" type="text/css" href="/static/dist/bootstrap-datepicker3.min.css">
+        <link rel="stylesheet" type="text/css" href="/static/dist/bootstrap-multiselect.css">
+        {% block extra_styles %}
+        {% endblock %}
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+        <script type="text/javascript" src="/static/dist/html5shiv.js"></script>
+        <script type="text/javascript" src="/static/dist/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="/static/dist/jquery.min.js"></script>
+        <script src="/static/dist/jquery-ui.min.js"></script>
+        <script src="/static/dist/jquery.number.min.js"></script>
+        <script src="/static/dist/jquery.cookie.js"></script>
+    </head>
+
+    <body class="ivweb  {% block body_class %}{% endblock %} {% if not request.user.is_at_least_highwire_staff %}small-left-menu{% endif %}">
+        {% block body %}<p>Empty.</p>{% endblock %}
+
+        <script src="/static/dist/bootstrap.min.js"></script>
+        <script src="/static/dist/moment.min.js"></script>
+        <script src="/static/dist/bootstrap-datepicker.min.js"></script>
+        <script src="/static/dist/bootstrap3-typeahead.min.js"></script>
+        <script src="/static/dist/bootstrap-multiselect.js"></script>
+        <script src="/static/dist/common.js"></script>
+
+        {% block page_scripts %}{% endblock %}
+
+        <script>
+            $(function() {
+                IvetlWeb.initTooltips('body');
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,511 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20191.19.0417.1429                               -->
+<datasource formatted-name='publisher_metadata (impactvizor.publisher_metadata) (Cassandra)' inline='true' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <repository-location id='publisher_metadataimpactvizor_publisher_metadataCassandra' path='/datasources' revision='1.0' />
+  <connection class='federated'>
+    <named-connections>
+      <named-connection caption='PROD-Cassandra (ODBC)' name='genericodbc.1viub9q0cvs7zx0zqm64y1yra6nz'>
+        <connection class='genericodbc' dbname='Cassandra' odbc-connect-string-extras='' odbc-dbms-name='TEXT' odbc-driver='DataStax Cassandra ODBC Driver' odbc-dsn='PROD-Cassandra' odbc-native-protocol='yes' odbc-suppress-connection-pooling='' odbc-use-connection-pooling='' port='' schema='' server='' username='' workgroup-auth-mode='prompt' />
+      </named-connection>
+    </named-connections>
+    <relation join='left' type='join'>
+      <clause type='join'>
+        <expression op='='>
+          <expression op='[publisher_metadata].[publisher_id]' />
+          <expression op='[publisher_metadata_vt_supported_product_groups].[publisher_id]' />
+        </expression>
+      </clause>
+      <relation connection='genericodbc.1viub9q0cvs7zx0zqm64y1yra6nz' name='publisher_metadata' table='[impactvizor].[publisher_metadata]' type='table' />
+      <relation connection='genericodbc.1viub9q0cvs7zx0zqm64y1yra6nz' name='publisher_metadata_vt_supported_product_groups' table='[impactvizor].[publisher_metadata_vt_supported_product_groups]' type='table' />
+    </relation>
+    <cols>
+      <map key='[archived]' value='[publisher_metadata].[archived]' />
+      <map key='[cohort_articles_last_updated]' value='[publisher_metadata].[cohort_articles_last_updated]' />
+      <map key='[crossref_password]' value='[publisher_metadata].[crossref_password]' />
+      <map key='[crossref_username]' value='[publisher_metadata].[crossref_username]' />
+      <map key='[demo]' value='[publisher_metadata].[demo]' />
+      <map key='[demo_id]' value='[publisher_metadata].[demo_id]' />
+      <map key='[email]' value='[publisher_metadata].[email]' />
+      <map key='[has_cohort]' value='[publisher_metadata].[has_cohort]' />
+      <map key='[hw_addl_metadata_available]' value='[publisher_metadata].[hw_addl_metadata_available]' />
+      <map key='[name]' value='[publisher_metadata].[name]' />
+      <map key='[note]' value='[publisher_metadata].[note]' />
+      <map key='[pilot]' value='[publisher_metadata].[pilot]' />
+      <map key='[published_articles_last_updated]' value='[publisher_metadata].[published_articles_last_updated]' />
+      <map key='[publisher_id (publisher_metadata_vt_supported_product_groups)]' value='[publisher_metadata_vt_supported_product_groups].[publisher_id]' />
+      <map key='[publisher_id]' value='[publisher_metadata].[publisher_id]' />
+      <map key='[reports_group_id]' value='[publisher_metadata].[reports_group_id]' />
+      <map key='[reports_password]' value='[publisher_metadata].[reports_password]' />
+      <map key='[reports_project]' value='[publisher_metadata].[reports_project]' />
+      <map key='[reports_project_id]' value='[publisher_metadata].[reports_project_id]' />
+      <map key='[reports_setup_status]' value='[publisher_metadata].[reports_setup_status]' />
+      <map key='[reports_user_id]' value='[publisher_metadata].[reports_user_id]' />
+      <map key='[reports_username]' value='[publisher_metadata].[reports_username]' />
+      <map key='[scopus_key_setup_status]' value='[publisher_metadata].[scopus_key_setup_status]' />
+      <map key='[supported_product_groups_index]' value='[publisher_metadata_vt_supported_product_groups].[supported_product_groups_index]' />
+      <map key='[supported_product_groups_value]' value='[publisher_metadata_vt_supported_product_groups].[supported_product_groups_value]' />
+    </cols>
+    <metadata-records>
+      <metadata-record class='column'>
+        <remote-name>publisher_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[publisher_id]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>publisher_id</remote-alias>
+        <ordinal>1</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>false</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>archived</remote-name>
+        <remote-type>11</remote-type>
+        <local-name>[archived]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>archived</remote-alias>
+        <ordinal>2</ordinal>
+        <local-type>boolean</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIT&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_BIT&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>cohort_articles_last_updated</remote-name>
+        <remote-type>7</remote-type>
+        <local-name>[cohort_articles_last_updated]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>cohort_articles_last_updated</remote-alias>
+        <ordinal>3</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>crossref_password</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[crossref_password]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>crossref_password</remote-alias>
+        <ordinal>4</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>crossref_username</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[crossref_username]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>crossref_username</remote-alias>
+        <ordinal>5</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>demo</remote-name>
+        <remote-type>11</remote-type>
+        <local-name>[demo]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>demo</remote-alias>
+        <ordinal>6</ordinal>
+        <local-type>boolean</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIT&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_BIT&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>demo_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[demo_id]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>demo_id</remote-alias>
+        <ordinal>7</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>email</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[email]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>email</remote-alias>
+        <ordinal>8</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>has_cohort</remote-name>
+        <remote-type>11</remote-type>
+        <local-name>[has_cohort]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>has_cohort</remote-alias>
+        <ordinal>9</ordinal>
+        <local-type>boolean</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIT&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_BIT&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>hw_addl_metadata_available</remote-name>
+        <remote-type>11</remote-type>
+        <local-name>[hw_addl_metadata_available]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>hw_addl_metadata_available</remote-alias>
+        <ordinal>10</ordinal>
+        <local-type>boolean</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIT&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_BIT&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>name</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[name]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>name</remote-alias>
+        <ordinal>11</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>note</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[note]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>note</remote-alias>
+        <ordinal>12</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>pilot</remote-name>
+        <remote-type>11</remote-type>
+        <local-name>[pilot]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>pilot</remote-alias>
+        <ordinal>13</ordinal>
+        <local-type>boolean</local-type>
+        <aggregation>Count</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_BIT&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_BIT&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>published_articles_last_updated</remote-name>
+        <remote-type>7</remote-type>
+        <local-name>[published_articles_last_updated]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>published_articles_last_updated</remote-alias>
+        <ordinal>14</ordinal>
+        <local-type>datetime</local-type>
+        <aggregation>Year</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_TIMESTAMP&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_TIMESTAMP&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_group_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_group_id]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_group_id</remote-alias>
+        <ordinal>15</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_password</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_password]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_password</remote-alias>
+        <ordinal>16</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_project</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_project]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_project</remote-alias>
+        <ordinal>17</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_project_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_project_id]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_project_id</remote-alias>
+        <ordinal>18</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_setup_status</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_setup_status]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_setup_status</remote-alias>
+        <ordinal>19</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_user_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_user_id]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_user_id</remote-alias>
+        <ordinal>20</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reports_username</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[reports_username]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>reports_username</remote-alias>
+        <ordinal>21</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>scopus_key_setup_status</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[scopus_key_setup_status]</local-name>
+        <parent-name>[publisher_metadata]</parent-name>
+        <remote-alias>scopus_key_setup_status</remote-alias>
+        <ordinal>22</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>publisher_id</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[publisher_id (publisher_metadata_vt_supported_product_groups)]</local-name>
+        <parent-name>[publisher_metadata_vt_supported_product_groups]</parent-name>
+        <remote-alias>publisher_id</remote-alias>
+        <ordinal>24</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>supported_product_groups_index</remote-name>
+        <remote-type>3</remote-type>
+        <local-name>[supported_product_groups_index]</local-name>
+        <parent-name>[publisher_metadata_vt_supported_product_groups]</parent-name>
+        <remote-alias>supported_product_groups_index</remote-alias>
+        <ordinal>25</ordinal>
+        <local-type>integer</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>10</precision>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_INTEGER&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_SLONG&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>supported_product_groups_value</remote-name>
+        <remote-type>129</remote-type>
+        <local-name>[supported_product_groups_value]</local-name>
+        <parent-name>[publisher_metadata_vt_supported_product_groups]</parent-name>
+        <remote-alias>supported_product_groups_value</remote-alias>
+        <ordinal>26</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>4000</width>
+        <contains-null>true</contains-null>
+        <collation flag='0' name='binary' />
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_VARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_CHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+  </connection>
+  <aliases enabled='yes' />
+  <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+    <calculation class='tableau' formula='1' />
+  </column>
+  <column caption='Archived' datatype='boolean' name='[archived]' role='dimension' type='nominal' />
+  <column caption='Cohort Articles Last Updated' datatype='datetime' name='[cohort_articles_last_updated]' role='dimension' type='ordinal' />
+  <column caption='Crossref Password' datatype='string' name='[crossref_password]' role='dimension' type='nominal' />
+  <column caption='Crossref Username' datatype='string' name='[crossref_username]' role='dimension' type='nominal' />
+  <column caption='Demo' datatype='boolean' name='[demo]' role='dimension' type='nominal' />
+  <column caption='Demo Id' datatype='string' name='[demo_id]' role='dimension' type='nominal' />
+  <column caption='Email' datatype='string' name='[email]' role='dimension' type='nominal' />
+  <column caption='Has Cohort' datatype='boolean' name='[has_cohort]' role='dimension' type='nominal' />
+  <column caption='Hw Addl Metadata Available' datatype='boolean' name='[hw_addl_metadata_available]' role='dimension' type='nominal' />
+  <column caption='Name' datatype='string' name='[name]' role='dimension' type='nominal' />
+  <column caption='Pilot' datatype='boolean' name='[pilot]' role='dimension' type='nominal' />
+  <column caption='Published Articles Last Updated' datatype='datetime' name='[published_articles_last_updated]' role='dimension' type='ordinal' />
+  <column caption='Publisher Id (Publisher Metadata Vt Supported Product Groups)' datatype='string' name='[publisher_id (publisher_metadata_vt_supported_product_groups)]' role='dimension' type='nominal' />
+  <column caption='Publisher Id' datatype='string' name='[publisher_id]' role='dimension' type='nominal' />
+  <column caption='Reports Group Id' datatype='string' name='[reports_group_id]' role='dimension' type='nominal' />
+  <column caption='Reports Password' datatype='string' name='[reports_password]' role='dimension' type='nominal' />
+  <column caption='Reports Project' datatype='string' name='[reports_project]' role='dimension' type='nominal' />
+  <column caption='Reports Project Id' datatype='string' name='[reports_project_id]' role='dimension' type='nominal' />
+  <column caption='Reports Setup Status' datatype='string' name='[reports_setup_status]' role='dimension' type='nominal' />
+  <column caption='Reports User Id' datatype='string' name='[reports_user_id]' role='dimension' type='nominal' />
+  <column caption='Reports Username' datatype='string' name='[reports_username]' role='dimension' type='nominal' />
+  <column caption='Scopus Key Setup Status' datatype='string' name='[scopus_key_setup_status]' role='dimension' type='nominal' />
+  <column caption='Supported Product Groups Index' datatype='integer' name='[supported_product_groups_index]' role='measure' type='quantitative' />
+  <column caption='Supported Product Groups Value' datatype='string' name='[supported_product_groups_value]' role='dimension' type='nominal' />
+  <layout dim-ordering='alphabetic' dim-percentage='0.869023' measure-ordering='alphabetic' measure-percentage='0.130977' show-structure='true' />
+  <semantic-values>
+    <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+  </semantic-values>
+</datasource>

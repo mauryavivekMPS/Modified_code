@@ -1,0 +1,74 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Audit Log{% endblock %}
+{% block body_class %}audit{% endblock %}
+
+{% block content %}
+    <div id="audit-log-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Audit Log</h1>
+                <span class="lnr lnr-funnel filter-label"></span>
+                <select class="form-control input-sm filter-menu" id="id_time_filter">
+                    {% for choice in time_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_time == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_publisher_filter">
+                    <option value="">All publishers</option>
+                    {% for choice in publisher_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_publisher == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control input-sm filter-menu" id="id_user_filter">
+                    <option value="">All users</option>
+                    {% for choice in user_filter_choices %}
+                        <option value="{{ choice.0 }}" {% if selected_user == choice.0 %}selected="selected"{% endif %}>{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="date-col">Date</th>
+                            <th class="time-col">Time</th>
+                            <th class="user-col">User</th>
+                            <th class="publisher-col">Publisher</th>
+                            <th class="description-col">Description</th>
+                            <th class="action-col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if audit_logs %}
+                            {% for log_entry in audit_logs %}
+                                <tr>
+                                    <td class="date-col">{{ log_entry.event_time|date:"m/d/Y" }}</td>
+                                    <td class="time-col">{{ log_entry.event_time|date:"h:i A" }}</td>
+                                    <td class="user-col">{{ log_entry.user_display_name }}</td>
+                                    <td class="publisher-col">{{ log_entry.publisher_id }}</td>
+                                    <td class="description-col">{{ log_entry.description|safe }}</td>
+                                    <td class="action-col {% if 'invalid' in log_entry.action %}invalid{% endif %}">{{ log_entry.action }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6">No matching entries</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script>
+        $(function () {
+            $('#audit-log-page').auditlogpage();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base_standard.html" %}
+{% load tags %}
+{% block title %}Metadata Mappings{% endblock %}
+{% block body_class %}value_mappings{% endblock %}
+
+{% block content %}
+    <div id="list-value-mappings-page">
+        <div class="row header-row">
+            <div class="col-md-12">
+                <h1>Metadata Mappings</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table sortable-table">
+                    <thead>
+                        <tr>
+                            {% if request.user.is_at_least_highwire_staff %}
+                                <th class="label-col">Publisher</th>
+                            {% endif %}
+                            <th>Mapping Type</th>
+                            <th># of Mappings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mapping in mappings_by_publisher %}
+                            <tr>
+                                {% if request.user.is_at_least_highwire_staff %}
+                                    <td>{{ mapping.publisher_name }}</td>
+                                {% endif %}
+                                <td><a href="{% url 'value_mappings.edit' mapping.publisher_id mapping.mapping_type %}">{{ mapping.mapping_type_display }}</a></td>
+                                <td>
+                                    {{ mapping.num_canonicals }} value{{ mapping.num_canonicals|pluralize }}
+                                    <i class="lnr lnr-arrow-right right-arrow"></i>
+                                    {{ mapping.num_displays }} value{{ mapping.num_displays|pluralize }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
